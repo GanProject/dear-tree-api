@@ -1,4 +1,4 @@
-# dear-tree
+# Dear Tree API
 디어 트리 백엔드
 
 개발자:
