@@ -5,6 +5,7 @@ import com.dear_tree.dear_tree.dto.request.SignUpRequestDto;
 import com.dear_tree.dear_tree.dto.response.ResponseDto;
 import com.dear_tree.dear_tree.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,6 +31,21 @@ public class AuthService {
             return ResponseDto.databaseError();
         }
 
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto());
+    }
+
+    public ResponseEntity<ResponseDto> checkUsername(String username) {
+        try {
+            Member member = memberRepository.findByUsernameAndStatus(username, true);
+
+            if (member != null) {
+                return ResponseDto.duplicatedUsername();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseDto.databaseError();
+        }
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto());
     }
 }

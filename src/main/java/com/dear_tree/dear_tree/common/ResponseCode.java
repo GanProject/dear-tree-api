@@ -4,6 +4,9 @@ public interface ResponseCode {
     //HTTP Status 200
     String SUCCESS = "SU";
 
+    // HTTP Status 400
+    String DUPLICATE_USERNAME = "DU";
+
     //HTTP Status 401
     String AUTHORIZATION_FAIL = "AF";
 
