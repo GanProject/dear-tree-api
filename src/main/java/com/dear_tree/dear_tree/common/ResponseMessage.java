@@ -6,6 +6,7 @@ public interface ResponseMessage {
 
     // HTTP Status 400
     String DUPLICATE_USERNAME = "duplicate username";
+    String VALIDATION_ERROR = "validation error";
 
     // HTTP Status 401
     String AUTHORIZATION_FAIL = "Authorization Failed.";

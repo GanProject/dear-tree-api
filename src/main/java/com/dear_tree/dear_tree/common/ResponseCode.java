@@ -6,6 +6,7 @@ public interface ResponseCode {
 
     // HTTP Status 400
     String DUPLICATE_USERNAME = "DU";
+    String VALIDATION_ERROR = "VE";
 
     //HTTP Status 401
     String AUTHORIZATION_FAIL = "AF";

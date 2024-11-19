@@ -33,4 +33,9 @@ public class ResponseDto {
         ResponseDto responseBody = new ResponseDto(ResponseCode.DUPLICATE_USERNAME, ResponseMessage.DUPLICATE_USERNAME);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);
     }
+
+    public static ResponseEntity<ResponseDto> validationError(String message) {
+        ResponseDto responseBody = new ResponseDto(ResponseCode.VALIDATION_ERROR, ResponseMessage.VALIDATION_ERROR);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseBody);
+    }
 }
