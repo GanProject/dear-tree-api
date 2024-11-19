@@ -24,6 +24,7 @@ public class AuthController {
     @Operation(summary = "회원가입", description = "회원을 추가합니다.")
     @ApiResponse(responseCode = "200", description = "성공")
     @ApiResponse(responseCode = "400", description = "닉네임, 비밀번호 조건 맞지 않음")
+    @ApiResponse(responseCode = "400", description = "비밀번호, 비밀번호 확인 일치하지 않음")
     @ApiResponse(responseCode = "500", description = "DB 접근 오류")
     public ResponseEntity<ResponseDto> signUp(@RequestBody @Valid SignUpRequestDto requestBody) {
         ResponseEntity<ResponseDto> response = authService.signUp(requestBody);

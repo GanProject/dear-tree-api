@@ -7,9 +7,10 @@ public interface ResponseMessage {
     // HTTP Status 400
     String DUPLICATE_USERNAME = "duplicate username";
     String VALIDATION_ERROR = "validation error";
+    String PASSWORD_MISMATCH = "password and password confirmation do not match";
 
     // HTTP Status 401
-    String AUTHORIZATION_FAIL = "Authorization Failed.";
+    String AUTHORIZATION_FAIL = "authorization failed";
 
     // HTTP Status 500
     String DATABASE_ERROR = "database error";

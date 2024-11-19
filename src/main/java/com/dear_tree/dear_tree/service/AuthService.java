@@ -21,6 +21,10 @@ public class AuthService {
 
     public ResponseEntity<ResponseDto> signUp(SignUpRequestDto dto) {
         try {
+            if (!dto.getPassword().equals(dto.getPasswordConfirm())) {
+                return ResponseDto.passwordMismatch();
+            }
+
             String hash = passwordEncoder.encode(dto.getPassword());
             dto.setPassword(hash);
             Member member = new Member(dto);

@@ -19,4 +19,7 @@ public class SignUpRequestDto {
     @NotEmpty(message = "비밀번호는 필수 입력값입니다.")
     @Pattern(regexp="^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9!@#$%^&*(),.?\":{}|<>]{8,15}$", message = "비밀번호는 영문, 숫자를 포함해 8자 이상, 15자 이하여야 합니다.")
     private String password;
+
+    @NotEmpty(message = "비밀번호 확인은 필수 입력값입니다.")
+    private String passwordConfirm;
 }
