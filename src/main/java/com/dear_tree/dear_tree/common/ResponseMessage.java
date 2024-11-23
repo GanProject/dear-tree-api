@@ -11,6 +11,7 @@ public interface ResponseMessage {
 
     // HTTP Status 401
     String AUTHORIZATION_FAIL = "authorization failed";
+    String SIGN_IN_FAIL = "invalid nickname or password";
 
     // HTTP Status 500
     String DATABASE_ERROR = "database error";

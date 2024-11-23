@@ -11,6 +11,7 @@ public interface ResponseCode {
 
     //HTTP Status 401
     String AUTHORIZATION_FAIL = "AF";
+    String SIGN_IN_FAIL = "SF";
 
     // HTTP Status 500
     String DATABASE_ERROR = "DBE";
