@@ -6,9 +6,12 @@ public interface ResponseCode {
 
     // HTTP Status 400
     String DUPLICATE_USERNAME = "DU";
+    String VALIDATION_ERROR = "VE";
+    String PASSWORD_MISMATCH = "PM";
 
     //HTTP Status 401
     String AUTHORIZATION_FAIL = "AF";
+    String SIGN_IN_FAIL = "SF";
 
     // HTTP Status 500
     String DATABASE_ERROR = "DBE";

@@ -27,7 +27,8 @@ public class Member {
     @Column(nullable = false)
     private String password;
 
-    private boolean status;
+    @Column(nullable = false)
+    private Boolean status;
 
     @CreatedDate
     private LocalDateTime created_at;
