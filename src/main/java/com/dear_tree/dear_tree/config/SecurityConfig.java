@@ -39,15 +39,15 @@ public class SecurityConfig {
                 sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         );
 
-        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(new CharacterEncodingFilter("UTF-8", true), JwtFilter.class);
-
         http.authorizeHttpRequests(authorize ->
                 authorize
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**").permitAll()
                         .anyRequest().authenticated()
         );
+
+        http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new CharacterEncodingFilter("UTF-8", true), JwtFilter.class);
 
         return http.build();
     }
