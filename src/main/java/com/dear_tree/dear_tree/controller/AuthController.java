@@ -1,5 +1,6 @@
 package com.dear_tree.dear_tree.controller;
 
+import com.dear_tree.dear_tree.dto.request.RefreshAccessTokenDto;
 import com.dear_tree.dear_tree.dto.request.SignInRequestDto;
 import com.dear_tree.dear_tree.dto.request.SignUpRequestDto;
 import com.dear_tree.dear_tree.dto.response.ResponseDto;
@@ -8,10 +9,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Auth", description = "Auth API")
@@ -50,6 +55,41 @@ public class AuthController {
     @ApiResponse(responseCode = "500", description = "DB 접근 오류")
     public ResponseEntity<ResponseDto> signIn(@RequestBody @Valid SignInRequestDto requestBody, HttpServletResponse httpServletResponse) {
         ResponseEntity<ResponseDto> response = authService.signIn(requestBody, httpServletResponse);
+        return response;
+    }
+
+    @PostMapping("/access-token/refresh")
+    @Operation(summary = "액세스토큰 재발급", description = "액세스토큰 만료시 재발급합니다.")
+    @ApiResponse(responseCode = "200", description = "성공")
+    @ApiResponse(responseCode = "401", description = "리프레시토큰 만료, 재로그인 필요")
+    @ApiResponse(responseCode = "500", description = "DB 접근 오류")
+    public ResponseEntity<ResponseDto> refreshAccessToken(@RequestBody RefreshAccessTokenDto requestBody, HttpServletResponse httpServletResponse) {
+        ResponseEntity<ResponseDto> response = authService.refreshAccessToken(requestBody, httpServletResponse);
+        return response;
+    }
+
+    @PostMapping("/sign-out")
+    @Operation(summary = "로그아웃", description = "로그아웃(액세스토큰 블랙리스트 올리기, 리프레시토큰 삭제)")
+    @ApiResponse(responseCode = "200", description = "성공")
+    @ApiResponse(responseCode = "401", description = "response code : IAT, 유효하지 않은 액세스토큰")
+    @ApiResponse(responseCode = "401", description = "response code : AF, 사용자 인증 실패")
+    @ApiResponse(responseCode = "500", description = "DB 접근 오류")
+    public ResponseEntity<? super ResponseDto> signOut(HttpServletRequest request) {
+        String username = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("auth : " + authentication);
+        try {
+            if (authentication != null) {
+                username = authentication.getName();
+            }
+            if (username == null)
+                return ResponseDto.noAuthentication();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseDto.internalServerError();
+        }
+
+        ResponseEntity<ResponseDto> response = authService.signOut(username, request);
         return response;
     }
 }

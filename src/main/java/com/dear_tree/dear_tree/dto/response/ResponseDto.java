@@ -48,4 +48,19 @@ public class ResponseDto {
         ResponseDto responseBody = new ResponseDto(ResponseCode.SIGN_IN_FAIL, ResponseMessage.SIGN_IN_FAIL);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
     }
+
+    public static ResponseEntity<ResponseDto> refreshTokenExpired() {
+        ResponseDto responseBody = new ResponseDto(ResponseCode.REFRESH_TOKEN_EXPIRED, ResponseMessage.REFRESH_TOKEN_EXPIRED);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
+    }
+
+    public static ResponseEntity<ResponseDto> invalidAccessToken() {
+        ResponseDto responseBody = new ResponseDto(ResponseCode.INVALID_ACCESS_TOKEN, ResponseMessage.INVALID_ACCESS_TOKEN);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
+    }
+
+    public static ResponseEntity<ResponseDto> internalServerError() {
+        ResponseDto responseBody = new ResponseDto(ResponseCode.INTERNAL_SERVER_ERROR, ResponseMessage.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
+    }
 }

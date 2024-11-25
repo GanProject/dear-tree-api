@@ -12,7 +12,10 @@ public interface ResponseCode {
     //HTTP Status 401
     String AUTHORIZATION_FAIL = "AF";
     String SIGN_IN_FAIL = "SF";
+    String REFRESH_TOKEN_EXPIRED = "RTE";
+    String INVALID_ACCESS_TOKEN = "IAT";
 
     // HTTP Status 500
     String DATABASE_ERROR = "DBE";
+    String INTERNAL_SERVER_ERROR = "ISE";
 }

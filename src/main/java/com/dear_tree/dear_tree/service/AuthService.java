@@ -1,12 +1,14 @@
 package com.dear_tree.dear_tree.service;
 
 import com.dear_tree.dear_tree.domain.Member;
+import com.dear_tree.dear_tree.dto.request.RefreshAccessTokenDto;
 import com.dear_tree.dear_tree.dto.request.SignInRequestDto;
 import com.dear_tree.dear_tree.dto.request.SignUpRequestDto;
 import com.dear_tree.dear_tree.dto.response.ResponseDto;
 import com.dear_tree.dear_tree.repository.MemberRepository;
 import com.dear_tree.dear_tree.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.Response;
@@ -107,5 +109,71 @@ public class AuthService {
 
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto());
 
+    }
+
+    public ResponseEntity<ResponseDto> refreshAccessToken(RefreshAccessTokenDto dto, HttpServletResponse httpServletResponse) {
+
+        try {
+            String redisKey = "RefreshToken:" + dto.getUsername();
+            String refreshToken = redisTemplate.opsForValue().get(redisKey);
+
+            //리프레시토큰 유효시
+            if (refreshToken != null) {
+                //액세스토큰 재발급
+                String newAccessToken = JwtUtil.createToken(dto.getUsername(), 1000 * 60 * 30L);
+                Cookie cookie = new Cookie("accessToken", newAccessToken);
+                cookie.setHttpOnly(true);
+                //cookie.setSecure(true);
+                cookie.setPath("/");
+                cookie.setMaxAge((int) (1000 * 60 * 30L / 1000));
+
+                httpServletResponse.addCookie(cookie);
+
+                //리프레시토큰 재발급(리프레시토큰 로테이션)
+                long expiredTime = 1000L * 60 * 60 * 24 * 30;
+                String newRefreshToken = JwtUtil.createToken(dto.getUsername(), 1000 * 60 * 60 * 24 * 30L);
+                redisTemplate.opsForValue().set(redisKey, newRefreshToken, expiredTime, TimeUnit.MILLISECONDS);
+            } else {
+                return ResponseDto.refreshTokenExpired();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+
+        return  ResponseEntity.status(HttpStatus.OK).body(new ResponseDto());
+    }
+
+    public ResponseEntity<ResponseDto> signOut(String username, HttpServletRequest request) {
+
+        String accessToken = "";
+
+        try {
+            Cookie[] cookies = request.getCookies();
+
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("accessToken".equals(cookie.getName())) {
+                        accessToken = cookie.getValue();
+                    }
+                }
+            }
+
+            //액세스토큰 블랙리스트에 추가
+            long remainingTime = JwtUtil.getRemainingExpiration(accessToken);
+            String redisKey = "Blacklist:" + accessToken;
+            redisTemplate.opsForValue().set(redisKey, "blacklisted", remainingTime, TimeUnit.SECONDS);
+
+            //리프레시 토큰 삭제
+            String redisKey2 = "RefreshToken:" + username;
+            redisTemplate.delete(redisKey2);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+
+        return  ResponseEntity.status(HttpStatus.OK).body(new ResponseDto());
     }
 }
