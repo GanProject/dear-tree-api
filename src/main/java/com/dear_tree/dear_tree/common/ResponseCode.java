@@ -8,6 +8,7 @@ public interface ResponseCode {
     String DUPLICATE_USERNAME = "DU";
     String VALIDATION_ERROR = "VE";
     String PASSWORD_MISMATCH = "PM";
+    String NOT_EXIST_USER = "NEU";
 
     //HTTP Status 401
     String AUTHORIZATION_FAIL = "AF";

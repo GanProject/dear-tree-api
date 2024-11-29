@@ -24,6 +24,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -169,6 +170,45 @@ public class AuthService {
             //리프레시 토큰 삭제
             String redisKey2 = "RefreshToken:" + username;
             redisTemplate.delete(redisKey2);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+
+        return  AuthResponseDto.success();
+    }
+
+    public ResponseEntity<? super AuthResponseDto> delete(String username, HttpServletRequest request) {
+        String accessToken = "";
+
+        try {
+            Cookie[] cookies = request.getCookies();
+
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("accessToken".equals(cookie.getName())) {
+                        accessToken = cookie.getValue();
+                    }
+                }
+            }
+
+            //액세스토큰 블랙리스트에 추가
+            long remainingTime = JwtUtil.getRemainingExpiration(accessToken);
+            String redisKey = "Blacklist:" + accessToken;
+            redisTemplate.opsForValue().set(redisKey, "blacklisted", remainingTime, TimeUnit.SECONDS);
+
+            //리프레시 토큰 삭제
+            String redisKey2 = "RefreshToken:" + username;
+            redisTemplate.delete(redisKey2);
+
+            //유저 삭제
+            Member member = memberRepository.findByUsernameAndStatus(username, true);
+            if (member == null || member.getStatus() == false)
+                return AuthResponseDto.notExistUser();
+            member.setStatus(false);
+            member.setUpdated_at(LocalDateTime.now());
+            memberRepository.save(member);
 
         } catch (Exception e) {
             e.printStackTrace();

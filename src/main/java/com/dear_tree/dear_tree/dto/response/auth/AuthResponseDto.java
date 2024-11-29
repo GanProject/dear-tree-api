@@ -42,4 +42,9 @@ public class AuthResponseDto extends ResponseDto {
         ResponseDto responseBody = new ResponseDto(ResponseCode.INVALID_ACCESS_TOKEN, ResponseMessage.INVALID_ACCESS_TOKEN);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
     }
+
+    public static ResponseEntity<ResponseDto> notExistUser() {
+        ResponseDto responseBody = new ResponseDto(ResponseCode.NOT_EXIST_USER, ResponseMessage.NOT_EXIST_USER);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(responseBody);
+    }
 }

@@ -72,8 +72,7 @@ public class AuthController {
     @PostMapping("/sign-out")
     @Operation(summary = "로그아웃", description = "로그아웃(액세스토큰 블랙리스트 올리기, 리프레시토큰 삭제)")
     @ApiResponse(responseCode = "200", description = "성공")
-    @ApiResponse(responseCode = "401", description = "response code : IAT, 유효하지 않은 액세스토큰")
-    @ApiResponse(responseCode = "401", description = "response code : AF, 사용자 인증 실패")
+    @ApiResponse(responseCode = "401", description = "response code : IAT, 유효하지 않은 액세스토큰 / response code : AF, 사용자 인증 실패")
     @ApiResponse(responseCode = "500", description = "DB 접근 오류")
     public ResponseEntity<? super AuthResponseDto> signOut(HttpServletRequest request) {
         String username = null;
@@ -91,6 +90,31 @@ public class AuthController {
         }
 
         ResponseEntity<? super AuthResponseDto> response = authService.signOut(username, request);
+        return response;
+    }
+
+    @DeleteMapping("/delete")
+    @Operation(summary = "회원탈퇴", description = "회원탈퇴합니다.")
+    @ApiResponse(responseCode = "200", description = "성공")
+    @ApiResponse(responseCode = "400", description = "존재하지 않는 회원")
+    @ApiResponse(responseCode = "401", description = "response code : IAT, 유효하지 않은 액세스토큰 / response code : AF, 사용자 인증 실패")
+    @ApiResponse(responseCode = "500", description = "DB 접근 오류 / 서버 오류")
+    public ResponseEntity<? super AuthResponseDto> delete(HttpServletRequest request) {
+        String username = null;
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("auth : " + authentication);
+        try {
+            if (authentication != null) {
+                username = authentication.getName();
+            }
+            if (username == null)
+                return ResponseDto.noAuthentication();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseDto.internalServerError();
+        }
+
+        ResponseEntity<? super AuthResponseDto> response = authService.delete(username, request);
         return response;
     }
 }
