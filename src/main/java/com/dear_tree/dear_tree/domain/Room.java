@@ -1,6 +1,7 @@
 package com.dear_tree.dear_tree.domain;
 
 import com.dear_tree.dear_tree.dto.request.auth.SignUpRequestDto;
+import com.dear_tree.dear_tree.dto.request.room.CreateRoomRequestDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,23 +18,18 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Member {
+public class Room {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<MemberRoom> memberRooms = new HashSet<>();
 
-    @Column(nullable = false)
-    private String username;
+    private String roomname;
 
-    @Column(nullable = false)
-    private String password;
-
-    @Column(nullable = false)
-    private Boolean status;
+    private String icon;
 
     @CreatedDate
     private LocalDateTime created_at;
@@ -41,12 +37,10 @@ public class Member {
     @CreatedDate
     private LocalDateTime updated_at;
 
-    public Member(SignUpRequestDto dto) {
-        this.username = dto.getUsername();
-        this.password = dto.getPassword();
-        this.status = true;
+    public Room(CreateRoomRequestDto dto) {
+        this.roomname = dto.getRoomname();
+        this.icon = dto.getIcon();
         this.created_at = LocalDateTime.now();
         this.updated_at = LocalDateTime.now();
     }
-
 }

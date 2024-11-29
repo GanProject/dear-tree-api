@@ -1,20 +1,18 @@
 package com.dear_tree.dear_tree.controller;
 
-import com.dear_tree.dear_tree.dto.request.RefreshAccessTokenDto;
-import com.dear_tree.dear_tree.dto.request.SignInRequestDto;
-import com.dear_tree.dear_tree.dto.request.SignUpRequestDto;
+import com.dear_tree.dear_tree.dto.request.auth.RefreshAccessTokenDto;
+import com.dear_tree.dear_tree.dto.request.auth.SignInRequestDto;
+import com.dear_tree.dear_tree.dto.request.auth.SignUpRequestDto;
 import com.dear_tree.dear_tree.dto.response.ResponseDto;
 import com.dear_tree.dear_tree.dto.response.auth.AuthResponseDto;
 import com.dear_tree.dear_tree.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
