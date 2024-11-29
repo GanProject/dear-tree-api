@@ -5,6 +5,7 @@ import com.dear_tree.dear_tree.dto.request.RefreshAccessTokenDto;
 import com.dear_tree.dear_tree.dto.request.SignInRequestDto;
 import com.dear_tree.dear_tree.dto.request.SignUpRequestDto;
 import com.dear_tree.dear_tree.dto.response.ResponseDto;
+import com.dear_tree.dear_tree.dto.response.auth.AuthResponseDto;
 import com.dear_tree.dear_tree.repository.MemberRepository;
 import com.dear_tree.dear_tree.util.JwtUtil;
 import jakarta.servlet.http.Cookie;
@@ -23,6 +24,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -32,10 +34,10 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final RedisTemplate<String, String> redisTemplate;
 
-    public ResponseEntity<ResponseDto> signUp(SignUpRequestDto dto) {
+    public ResponseEntity<? super AuthResponseDto> signUp(SignUpRequestDto dto) {
         try {
             if (!dto.getPassword().equals(dto.getPasswordConfirm())) {
-                return ResponseDto.passwordMismatch();
+                return AuthResponseDto.passwordMismatch();
             }
 
             String hash = new BCryptPasswordEncoder().encode(dto.getPassword());
@@ -48,25 +50,25 @@ public class AuthService {
             return ResponseDto.databaseError();
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto());
+        return AuthResponseDto.success();
     }
 
-    public ResponseEntity<ResponseDto> checkUsername(String username) {
+    public ResponseEntity<? super AuthResponseDto> checkUsername(String username) {
         try {
             Member member = memberRepository.findByUsernameAndStatus(username, true);
 
             if (member != null) {
-                return ResponseDto.duplicatedUsername();
+                return AuthResponseDto.duplicatedUsername();
             }
 
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseDto.databaseError();
         }
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto());
+        return AuthResponseDto.success();
     }
 
-    public ResponseEntity<ResponseDto> signIn(SignInRequestDto dto, HttpServletResponse httpServletResponse) {
+    public ResponseEntity<? super AuthResponseDto> signIn(SignInRequestDto dto, HttpServletResponse httpServletResponse) {
 
         String accessToken;
         String refreshToken;
@@ -76,14 +78,14 @@ public class AuthService {
             String username = dto.getUsername();
             Member member = memberRepository.findByUsernameAndStatus(username, true);
             if (member == null || member.getStatus() == false)
-                return ResponseDto.signInFail();
+                return AuthResponseDto.signInFail();
 
             //비밀번호 불일치
             String password = dto.getPassword();
             String encodedPassword = member.getPassword();
             boolean isMatched = new BCryptPasswordEncoder().matches(password, encodedPassword);
             if (!isMatched)
-                return ResponseDto.signInFail();
+                return AuthResponseDto.signInFail();
 
             accessToken = JwtUtil.createToken(username, 1000 * 60 * 30L);
             refreshToken = JwtUtil.createToken(username, 1000 * 60 * 60 * 24 * 30L);
@@ -107,11 +109,11 @@ public class AuthService {
             return ResponseDto.databaseError();
         }
 
-        return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto());
+        return AuthResponseDto.success();
 
     }
 
-    public ResponseEntity<ResponseDto> refreshAccessToken(RefreshAccessTokenDto dto, HttpServletResponse httpServletResponse) {
+    public ResponseEntity<? super AuthResponseDto> refreshAccessToken(RefreshAccessTokenDto dto, HttpServletResponse httpServletResponse) {
 
         try {
             String redisKey = "RefreshToken:" + dto.getUsername();
@@ -134,7 +136,7 @@ public class AuthService {
                 String newRefreshToken = JwtUtil.createToken(dto.getUsername(), 1000 * 60 * 60 * 24 * 30L);
                 redisTemplate.opsForValue().set(redisKey, newRefreshToken, expiredTime, TimeUnit.MILLISECONDS);
             } else {
-                return ResponseDto.refreshTokenExpired();
+                return AuthResponseDto.refreshTokenExpired();
             }
 
         } catch (Exception e) {
@@ -142,10 +144,10 @@ public class AuthService {
             return ResponseDto.databaseError();
         }
 
-        return  ResponseEntity.status(HttpStatus.OK).body(new ResponseDto());
+        return  AuthResponseDto.success();
     }
 
-    public ResponseEntity<ResponseDto> signOut(String username, HttpServletRequest request) {
+    public ResponseEntity<? super AuthResponseDto> signOut(String username, HttpServletRequest request) {
 
         String accessToken = "";
 
@@ -174,6 +176,45 @@ public class AuthService {
             return ResponseDto.databaseError();
         }
 
-        return  ResponseEntity.status(HttpStatus.OK).body(new ResponseDto());
+        return  AuthResponseDto.success();
+    }
+
+    public ResponseEntity<? super AuthResponseDto> delete(String username, HttpServletRequest request) {
+        String accessToken = "";
+
+        try {
+            Cookie[] cookies = request.getCookies();
+
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("accessToken".equals(cookie.getName())) {
+                        accessToken = cookie.getValue();
+                    }
+                }
+            }
+
+            //액세스토큰 블랙리스트에 추가
+            long remainingTime = JwtUtil.getRemainingExpiration(accessToken);
+            String redisKey = "Blacklist:" + accessToken;
+            redisTemplate.opsForValue().set(redisKey, "blacklisted", remainingTime, TimeUnit.SECONDS);
+
+            //리프레시 토큰 삭제
+            String redisKey2 = "RefreshToken:" + username;
+            redisTemplate.delete(redisKey2);
+
+            //유저 삭제
+            Member member = memberRepository.findByUsernameAndStatus(username, true);
+            if (member == null || member.getStatus() == false)
+                return AuthResponseDto.notExistUser();
+            member.setStatus(false);
+            member.setUpdated_at(LocalDateTime.now());
+            memberRepository.save(member);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+
+        return  AuthResponseDto.success();
     }
 }

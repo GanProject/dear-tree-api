@@ -8,6 +8,7 @@ public interface ResponseMessage {
     String DUPLICATE_USERNAME = "duplicate username";
     String VALIDATION_ERROR = "validation error";
     String PASSWORD_MISMATCH = "password and password confirmation do not match";
+    String NOT_EXIST_USER = "not exist user";
 
     // HTTP Status 401
     String AUTHORIZATION_FAIL = "authorization failed";
