@@ -1,4 +1,4 @@
-package com.dear_tree.dear_tree.dto.request;
+package com.dear_tree.dear_tree.dto.request.auth;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

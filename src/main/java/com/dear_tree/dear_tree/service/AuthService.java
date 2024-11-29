@@ -1,9 +1,9 @@
 package com.dear_tree.dear_tree.service;
 
 import com.dear_tree.dear_tree.domain.Member;
-import com.dear_tree.dear_tree.dto.request.RefreshAccessTokenDto;
-import com.dear_tree.dear_tree.dto.request.SignInRequestDto;
-import com.dear_tree.dear_tree.dto.request.SignUpRequestDto;
+import com.dear_tree.dear_tree.dto.request.auth.RefreshAccessTokenDto;
+import com.dear_tree.dear_tree.dto.request.auth.SignInRequestDto;
+import com.dear_tree.dear_tree.dto.request.auth.SignUpRequestDto;
 import com.dear_tree.dear_tree.dto.response.ResponseDto;
 import com.dear_tree.dear_tree.dto.response.auth.AuthResponseDto;
 import com.dear_tree.dear_tree.repository.MemberRepository;
@@ -12,16 +12,9 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -205,7 +198,7 @@ public class AuthService {
             //유저 삭제
             Member member = memberRepository.findByUsernameAndStatus(username, true);
             if (member == null || member.getStatus() == false)
-                return AuthResponseDto.notExistUser();
+                return ResponseDto.notExistUser();
             member.setStatus(false);
             member.setUpdated_at(LocalDateTime.now());
             memberRepository.save(member);
