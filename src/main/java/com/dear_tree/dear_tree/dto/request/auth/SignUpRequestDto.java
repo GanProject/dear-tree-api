@@ -13,7 +13,7 @@ import lombok.Setter;
 public class SignUpRequestDto {
 
     @NotEmpty(message = "닉네임은 필수 입력값입니다.")
-    @Pattern(regexp = "^[가-힣a-zA-Z]{2,10}$", message = "닉네임은 특수문자를 제외한 한글 또는 영문 2자 이상, 10자 이하여야 합니다.")
+    @Pattern(regexp = "^[가-힣a-zA-Z0-9]{2,10}$", message = "닉네임은 특수문자를 제외한 2자 이상, 10자 이하여야 합니다.")
     private String username;
 
     @NotEmpty(message = "비밀번호는 필수 입력값입니다.")

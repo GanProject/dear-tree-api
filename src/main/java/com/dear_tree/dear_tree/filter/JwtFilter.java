@@ -69,7 +69,7 @@ public class JwtFilter extends OncePerRequestFilter {
         if (accessToken == "") {
             log.error("액세스토큰 없음");
             sendErrorResponse(response, HttpStatus.UNAUTHORIZED.value(),
-                    ResponseCode.INVALID_ACCESS_TOKEN, ResponseMessage.INVALID_ACCESS_TOKEN);
+                    ResponseMessage.INVALID_ACCESS_TOKEN);
             return;
         }
 
@@ -80,7 +80,7 @@ public class JwtFilter extends OncePerRequestFilter {
             if (Boolean.TRUE.equals(isBlacklisted)) {
                 log.error("Token is blacklisted");
                 sendErrorResponse(response, HttpStatus.UNAUTHORIZED.value(),
-                        ResponseCode.INVALID_ACCESS_TOKEN, ResponseMessage.INVALID_ACCESS_TOKEN);
+                        ResponseMessage.INVALID_ACCESS_TOKEN);
                 return;
             }
 
@@ -88,7 +88,7 @@ public class JwtFilter extends OncePerRequestFilter {
             if (JwtUtil.isExpired(accessToken)) {
                 log.error("Token is expired");
                 sendErrorResponse(response, HttpStatus.UNAUTHORIZED.value(),
-                        ResponseCode.INVALID_ACCESS_TOKEN, ResponseMessage.INVALID_ACCESS_TOKEN);
+                        ResponseMessage.INVALID_ACCESS_TOKEN);
                 return;
             }
 
@@ -100,7 +100,7 @@ public class JwtFilter extends OncePerRequestFilter {
             if (!JwtUtil.validateToken(accessToken, username)) {
                 log.error("Invalid token");
                 sendErrorResponse(response, HttpStatus.UNAUTHORIZED.value(),
-                        ResponseCode.INVALID_ACCESS_TOKEN, ResponseMessage.INVALID_ACCESS_TOKEN);
+                        ResponseMessage.INVALID_ACCESS_TOKEN);
                 return;
             }
 
@@ -115,29 +115,29 @@ public class JwtFilter extends OncePerRequestFilter {
         } catch (ExpiredJwtException e) { // 토큰 만료 예외 처리
             log.error("Token expired exception: {}", e.getMessage());
             sendErrorResponse(response, HttpStatus.UNAUTHORIZED.value(),
-                    ResponseCode.INVALID_ACCESS_TOKEN, ResponseMessage.INVALID_ACCESS_TOKEN);
+                    ResponseMessage.INVALID_ACCESS_TOKEN);
             return;
         } catch (JwtException e) { // JWT 예외 처리
             log.error("JWT exception: {}", e.getMessage());
             sendErrorResponse(response, HttpStatus.UNAUTHORIZED.value(),
-                    ResponseCode.INVALID_ACCESS_TOKEN, ResponseMessage.INVALID_ACCESS_TOKEN);
+                    ResponseMessage.INVALID_ACCESS_TOKEN);
             return;
         } catch (Exception e) { // 기타 예외 처리
             log.error("Unexpected error occurred while processing the JWT: {}", e.getMessage());
             sendErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                    ResponseCode.INTERNAL_SERVER_ERROR, ResponseMessage.INTERNAL_SERVER_ERROR);
+                    ResponseMessage.INTERNAL_SERVER_ERROR);
             return;
         }
 
         filterChain.doFilter(request, response);
     }
 
-    private void sendErrorResponse(HttpServletResponse response, int status, String code, String message) throws IOException {
+    private void sendErrorResponse(HttpServletResponse response, int status, String message) throws IOException {
         response.setStatus(status);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
 
-        ResponseDto responseBody = new ResponseDto(code, message);
+        ResponseDto responseBody = new ResponseDto(status, message);
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonResponse = objectMapper.writeValueAsString(responseBody);
 
