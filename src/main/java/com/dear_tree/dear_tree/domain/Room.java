@@ -29,7 +29,7 @@ public class Room {
 
     private String roomname;
 
-    private String icon;
+    private Icon icon;
 
     @CreatedDate
     private LocalDateTime created_at;

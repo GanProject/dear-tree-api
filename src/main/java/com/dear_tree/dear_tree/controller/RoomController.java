@@ -24,10 +24,10 @@ public class RoomController {
 
     private final RoomService roomService;
 
-    @PostMapping("/room")
-    @Operation(summary = "방 생성", description = "방을 생성합니다.")
+    @PostMapping("")
+    @Operation(summary = "방 생성", description = "방을 생성합니다. icon은 SOCKS, WREATH, SNOWMAN, GIFT 중 하나로 입력")
     @ApiResponse(responseCode = "200", description = "성공")
-    @ApiResponse(responseCode = "400", description = "존재하지 않는 회원")
+    @ApiResponse(responseCode = "400", description = "존재하지 않는 회원/잘못된 아이콘 Enum값")
     @ApiResponse(responseCode = "401", description = "response code : IAT, 유효하지 않은 액세스토큰 / response code : AF, 사용자 인증 실패")
     @ApiResponse(responseCode = "500", description = "DB 접근 오류 / 서버 오류")
     public ResponseEntity<? super RoomResponseDto> createRoom(@RequestBody CreateRoomRequestDto requestBody) {

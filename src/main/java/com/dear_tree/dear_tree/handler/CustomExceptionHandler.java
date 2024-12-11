@@ -1,6 +1,7 @@
 package com.dear_tree.dear_tree.handler;
 
 import com.dear_tree.dear_tree.dto.response.ResponseDto;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.ObjectError;
@@ -21,4 +22,10 @@ public class CustomExceptionHandler {
                 .collect(Collectors.joining(", "));
         return ResponseDto.validationError(errorMessage);
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
 }
